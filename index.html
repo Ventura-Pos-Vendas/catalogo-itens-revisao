@@ -75,6 +75,34 @@
     color: #e9e9e9;
   }
 
+  /* ======== MODULE TABS ======== */
+  .module-tabs{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 18px 24px 0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .tab-btn{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .tab-btn:hover{ border-color: var(--accent); background: var(--accent-dim); }
+  .tab-btn.active{
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
   /* ======== LAYOUT ======== */
   .wrap{
     max-width: 1100px;
@@ -197,10 +225,11 @@
     border-bottom: 2px solid var(--line);
   }
   thead th.num{ text-align: right; }
+  thead th.center{ text-align: center; }
   tbody td{
     padding: 10px 6px;
     border-bottom: 1px solid var(--line);
-    vertical-align: top;
+    vertical-align: middle;
   }
   tbody tr:hover{ background: var(--panel-2); }
   th.photo-col, td.photo{
@@ -332,7 +361,6 @@
     color: var(--text-dim);
     font-family: var(--mono);
   }
-  thead th.center{ text-align: center; }
   td.qty{
     text-align: center;
     font-family: var(--mono);
@@ -361,6 +389,13 @@
     color: var(--green);
   }
   td.price.zero{ color: var(--text-dim); font-style: italic; font-weight: 500; }
+  td.total-price{
+    text-align: right;
+    font-family: var(--mono);
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--accent);
+  }
 
   tfoot td{
     padding: 14px 6px 4px;
@@ -393,6 +428,77 @@
     padding: 24px;
     font-family: var(--mono);
   }
+
+  /* ======== WARRANTY CALCULATOR ======== */
+  .qty-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    gap: 10px;
+  }
+  .qty-row:last-of-type{ border-bottom: none; }
+  .qty-row label{
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .qty-input{
+    width: 64px;
+    padding: 6px 6px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-family: var(--mono);
+    text-align: center;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--panel);
+  }
+  .qty-input:focus{ outline: none; border-color: var(--accent); }
+  .generate-btn-wrap{ padding: 14px; }
+  .generate-btn{
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: opacity .15s;
+  }
+  .generate-btn:hover{ opacity: .9; }
+  .export-bar{ margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .export-btn{
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text);
+    font-family: var(--sans);
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .export-btn:hover{ border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+
+  .warranty-total-row td{
+    padding-top: 14px;
+    border-top: 2px solid var(--accent);
+    font-weight: 800;
+    font-size: 16px;
+  }
+  .warranty-total-row td.total-label{ text-align: right; }
+  .warranty-total-row td.total-value{
+    font-family: var(--mono);
+    color: var(--accent);
+    text-align: right;
+    font-size: 16px;
+  }
 </style>
 </head>
 <body>
@@ -408,12 +514,27 @@
   </div>
 </header>
 
-<div class="wrap">
+<div class="module-tabs">
+  <button class="tab-btn active" id="tab-catalogo" onclick="switchModule('catalogo')">📋 Catálogo de Peças</button>
+  <button class="tab-btn" id="tab-garantia" onclick="switchModule('garantia')">🧮 Calculadora de Kits de Garantia</button>
+</div>
+
+<div class="wrap" id="catalogSection">
   <nav class="model-list" id="modelList"></nav>
   <main class="detail" id="detail">
     <div class="empty-state">
       <div class="big">🔧</div>
       <div>Selecione um modelo na lista ao lado</div>
+    </div>
+  </main>
+</div>
+
+<div class="wrap" id="garantiaSection" style="display:none;">
+  <nav class="model-list" id="warrantyModelList"></nav>
+  <main class="detail" id="warrantyDetail">
+    <div class="empty-state">
+      <div class="big">🧮</div>
+      <div>Informe as quantidades de kits e clique em "Gerar Lista"</div>
     </div>
   </main>
 </div>
@@ -426,6 +547,10 @@
   <div class="lightbox-caption" id="lightbox-caption"></div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
 <script>
 /* =====================================================================
  
@@ -434,18 +559,6 @@ const MODELS = [
   {
     name: "ATV - M250",
     kits: [
-      /*{
-        name: "Kit Revisão 20H",
-        parts: [
-          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/300_277/img-20230519-130024.jpg"  },
-          { code: "56294", desc: "Filtro de Ar", qty: 1, price: 97.51, photo: "https://imgs.extra.com.br/1576532105/1xg.jpg?imwidth=1000"  },
-          { code: "37185", desc: "Vela - CR7HSA (NGK)", qty: 1, price: 120.63, photo: "https://cdn.awsli.com.br/600x450/437/437289/produto/35569466/d2dcdd0151.jpg"  },
-          { code: "37292", desc: "Pastilha de Freio - TRASEIRO", qty: 1, price: 48.22, photo: "https://www.aspshop.eu/data/product/480_480/img-20230914-083519.jpg?ts=1769945929"  },
-          { code: "37291", desc: "Pastilha de Freio - DIANTEIRO", qty: 1, price: 88.48, photo: "https://www.aspshop.eu/data/product/480_480/img-20250211-084508.jpg?ts=1770045813"  },
-          { code: "37137", desc: "Cabo Acelerador", qty: 1, price: 228.98, photo: ""  },
-          { code: "62204", desc: "Cabo Acelerador", qty: 1, price: 96.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250617-122752.jpg?ts=1769902439"  },
-        ]
-      },*/
       {
         name: "Kit Revisão 100H",
         parts: [
@@ -505,18 +618,6 @@ const MODELS = [
   {
     name: "ATV - 400",
     kits: [
-      /*{
-        name: "Kit Revisão 20H",
-        parts: [
-          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
-          { code: "23212", desc: "Filtro de Ar", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
-          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
-          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
-          { code: "26291", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200529-085544.jpg?ts=1769785156"  },
-          { code: "27551", desc: "Cabo Acelerador", qty: 1, price: 87.76, photo: "https://www.aspshop.eu/data/product/480_480/img-20231204-135329.jpg?ts=1769816273"  },
-          { code: "70637", desc: "Cabo Freio de Mão", qty: 1, price: 43.88, photo: "https://www.aspshop.eu/data/product/480_480/70637.png?ts=1769904359"  },
-        ]
-      },*/
       {
         name: "Kit Revisão 100H",
         parts: [
@@ -576,18 +677,6 @@ const MODELS = [
   {
     name: "ATV - 420",
     kits: [
-      /*{
-        name: "Kit Revisão 20H",
-        parts: [
-          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
-          { code: "23212", desc: "Filtro de Ar", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
-          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
-          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
-          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
-          { code: "27551", desc: "Cabo Acelerador", qty: 1, price: 87.76, photo: "https://www.aspshop.eu/data/product/480_480/img-20231204-135329.jpg?ts=1769816273"  },
-          { code: "70637", desc: "Cabo Freio de Mão", qty: 1, price: 43.88, photo: "https://www.aspshop.eu/data/product/1024_1024/70637.png"  },
-        ]
-      },*/
       {
         name: "Kit Revisão 100H",
         parts: [
@@ -1069,17 +1158,6 @@ const MODELS = [
   {
     name: "UTV - T-ARCHOON 450",
     kits: [
-      /*{
-        name: "Kit Revisão 20H",
-        parts: [
-          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20230519-125945.jpg?ts=1769948508"  },
-          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
-          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
-          { code: "48414", desc: "Pastilha de Freio", qty: 4, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
-          { code: "47710", desc: "Cabo Acelerador", qty: 1, price: 115.21, photo: ""  },
-          { code: "48197", desc: "Cabo Freio de Mão", qty: 1, price: 122.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20221201-095418.jpg?ts=1769984373"  },
-        ]
-      },*/
       {
         name: "Kit Revisão 100H",
         parts: [
@@ -1281,186 +1359,6 @@ const MODELS = [
       }
     ]
   }
-  /*{
-    name: "UTV - LH800",
-    kits: [
-      {
-        name: "Kit Revisão 20H",
-        parts: [
-          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
-          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
-          { code: "84268", desc: "Filtro de Ar", qty: 1, price: 298.86, photo: ""  },
-          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
-          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
-          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
-          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
-          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
-          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
-        ]
-      },
-      {
-        name: "Kit Revisão 100H",
-        parts: [
-          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
-          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
-          { code: "84268", desc: "Filtro de Ar", qty: 1, price: 298.86, photo: ""  },
-          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
-          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
-          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
-          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
-          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
-          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
-        ]
-      },
-      {
-        name: "Kit Revisão 200H",
-        parts: [
-          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
-          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
-          { code: "84268", desc: "Filtro de Ar", qty: 1, price: 298.86, photo: ""  },
-          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
-          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
-          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
-          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
-          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
-          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
-        ]
-      },
-      {
-        name: "Kit Revisão Simples (300H)",
-        parts: [
-          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
-          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
-          { code: "84268", desc: "Filtro de Ar", qty: 1, price: 298.86, photo: ""  },
-          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
-          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
-          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
-          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
-          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
-          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
-        ]
-      },
-      {
-        name: "Kit Revisão Completa (400H)",
-        parts: [
-          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
-          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
-          { code: "84268", desc: "Filtro de Ar", qty: 1, price: 298.86, photo: ""  },
-          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
-          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
-          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
-          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
-          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
-          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
-        ]
-      },
-      {
-        name: "Kit Período Garantia Completo",
-        parts: [
-          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
-          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
-          { code: "84268", desc: "Filtro de Ar", qty: 1, price: 298.86, photo: ""  },
-          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
-          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
-          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
-          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
-          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
-          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
-        ]
-      }
-    ]
-  },
-  {
-    name: "UTV - LH1100",
-    kits: [
-      {
-        name: "Kit Revisão 20H",
-        parts: [
-          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
-          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
-          { code: "86369", desc: "Filtro de Ar", qty: 1, price: 431.23, photo: ""  },
-          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
-          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
-          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
-          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
-          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
-          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
-        ]
-      },
-      {
-        name: "Kit Revisão 100H",
-        parts: [
-          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
-          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
-          { code: "86369", desc: "Filtro de Ar", qty: 1, price: 431.23, photo: ""  },
-          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
-          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
-          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
-          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
-          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
-          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
-        ]
-      },
-      {
-        name: "Kit Revisão 200H",
-        parts: [
-          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
-          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
-          { code: "86369", desc: "Filtro de Ar", qty: 1, price: 431.23, photo: ""  },
-          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
-          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
-          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
-          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
-          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
-          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
-        ]
-      },
-      {
-        name: "Kit Revisão Simples (300H)",
-        parts: [
-          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
-          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
-          { code: "86369", desc: "Filtro de Ar", qty: 1, price: 431.23, photo: ""  },
-          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
-          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
-          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
-          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
-          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
-          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
-        ]
-      },
-      {
-        name: "Kit Revisão Completa (400H)",
-        parts: [
-          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
-          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
-          { code: "86369", desc: "Filtro de Ar", qty: 1, price: 431.23, photo: ""  },
-          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
-          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
-          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
-          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
-          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
-          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
-        ]
-      },
-      {
-        name: "Kit Período Garantia Completo",
-        parts: [
-          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
-          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
-          { code: "86369", desc: "Filtro de Ar", qty: 1, price: 431.23, photo: ""  },
-          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
-          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
-          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
-          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
-          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
-          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
-        ]
-      }
-    ]
-  },*/
-
-
 ];
 /* ===================================================================== */
 
@@ -1475,6 +1373,8 @@ const LOGO_URL = "";
 function formatBRL(v){
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
+
+/* ===================== MÓDULO: CATÁLOGO (original, intocado) ===================== */
 
 function renderList(){
   const listEl = document.getElementById('modelList');
@@ -1495,7 +1395,7 @@ let currentKitIdx = null;
 function selectModel(idx){
   currentModelIdx = idx;
   currentKitIdx = null;
-  document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#modelList .model-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('model-btn-' + idx).classList.add('active');
   renderDetail();
 }
@@ -1605,6 +1505,229 @@ function closeLightbox(e){
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeLightbox();
 });
+
+/* ===================== MÓDULO: CALCULADORA DE KITS DE GARANTIA (novo) ===================== */
+
+const WARRANTY_KIT_NAME = "Kit Período Garantia Completo";
+
+function getWarrantyData(){
+  return MODELS.map(m => {
+    const kit = m.kits.find(k => k.name === WARRANTY_KIT_NAME);
+    return { name: m.name, parts: kit ? kit.parts : [] };
+  });
+}
+
+const WARRANTY_DATA = getWarrantyData();
+let warrantyResults = null;
+
+function renderWarrantyList(){
+  const el = document.getElementById('warrantyModelList');
+  let html = '<div class="group-label">Modelos (' + WARRANTY_DATA.length + ')</div>';
+  WARRANTY_DATA.forEach((m, idx) => {
+    html += '<div class="qty-row">' +
+      '<label for="wq-' + idx + '">' + m.name + '</label>' +
+      '<input type="number" min="0" step="1" class="qty-input" id="wq-' + idx + '" value="0">' +
+      '</div>';
+  });
+  html += '<div class="generate-btn-wrap"><button class="generate-btn" onclick="generateWarrantyList()">Gerar Lista</button></div>';
+  el.innerHTML = html;
+}
+
+function generateWarrantyList(){
+  const consolidated = {};
+
+  WARRANTY_DATA.forEach((m, idx) => {
+    const input = document.getElementById('wq-' + idx);
+    const qtyKits = parseInt(input.value, 10);
+    if(!qtyKits || qtyKits <= 0) return;
+
+    m.parts.forEach(p => {
+      const totalQty = p.qty * qtyKits;
+      if(!consolidated[p.code]){
+        consolidated[p.code] = { 
+          code: p.code, 
+          desc: p.desc, 
+          qty: 0, 
+          price: p.price, 
+          photo: p.photo || '',
+          models: new Set() 
+        };
+      }
+      consolidated[p.code].qty += totalQty;
+      consolidated[p.code].models.add(m.name);
+    });
+  });
+
+  const rows = Object.values(consolidated).sort((a, b) => a.code.localeCompare(b.code));
+  warrantyResults = rows;
+  renderWarrantyResults(rows);
+}
+
+function renderWarrantyResults(rows){
+  const detailEl = document.getElementById('warrantyDetail');
+
+  if(!rows || rows.length === 0){
+    detailEl.innerHTML =
+      '<div class="empty-state">' +
+        '<div class="big">🧮</div>' +
+        '<div>Informe as quantidades de kits e clique em "Gerar Lista"</div>' +
+      '</div>';
+    return;
+  }
+
+  let totalGeral = 0;
+  const rowsHtml = rows.map(r => {
+    const totalItem = r.qty * r.price;
+    totalGeral += totalItem;
+    const photoCell = r.photo
+      ? '<img class="thumb" src="' + r.photo + '" alt="' + r.desc + '" onclick="openLightbox(\'' + r.photo.replace(/'/g, "\\'") + '\', \'' + r.desc.replace(/'/g, "\\'") + '\')" onerror="this.outerHTML=\'<div class=&quot;thumb-placeholder&quot;>🔩</div>\'">'
+      : '<div class="thumb-placeholder">🔩</div>';
+    return '<tr>' +
+      '<td class="photo">' + photoCell + '</td>' +
+      '<td class="code">' + r.code + '</td>' +
+      '<td>' + r.desc + '</td>' +
+      '<td>' + Array.from(r.models).join(', ') + '</td>' +
+      '<td class="qty">' + r.qty + '</td>' +
+      '<td class="unit">' + formatBRL(r.price) + '</td>' +
+      '<td class="total-price">' + formatBRL(totalItem) + '</td>' +
+      '</tr>';
+  }).join('');
+
+  detailEl.innerHTML =
+    '<div class="detail-header">' +
+      '<div>' +
+        '<h2>Lista Consolidada de Kits de Garantia</h2>' +
+        '<div class="subtitle">' + rows.length + ' itens únicos</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="export-bar">' +
+      '<button class="export-btn" onclick="exportWarrantyPDF()">📄 Exportar PDF</button>' +
+      '<button class="export-btn" onclick="exportWarrantyExcel()">📊 Exportar Excel</button>' +
+    '</div>' +
+    '<table>' +
+      '<thead><tr>' +
+        '<th class="photo-col"></th>' +
+        '<th>Código</th>' +
+        '<th>Descrição</th>' +
+        '<th>Modelo(s)</th>' +
+        '<th class="center">Qtd</th>' +
+        '<th class="num">Valor Unit.</th>' +
+        '<th class="num">Valor Total</th>' +
+      '</tr></thead>' +
+      '<tbody>' + rowsHtml + '</tbody>' +
+      '<tfoot><tr class="warranty-total-row">' +
+        '<td colspan="6" class="total-label">Total Geral</td>' +
+        '<td class="total-value">' + formatBRL(totalGeral) + '</td>' +
+      '</tr></tfoot>' +
+    '</table>';
+}
+
+function exportWarrantyExcel(){
+  if(!warrantyResults || warrantyResults.length === 0) return;
+  const data = warrantyResults.map(r => ({
+    'Código': r.code,
+    'Descrição': r.desc,
+    'Modelo(s)': Array.from(r.models).join(', '),
+    'Quantidade': r.qty,
+    'Valor Unitário': r.price,
+    'Valor Total': r.qty * r.price
+  }));
+  const ws = XLSX.utils.json_to_sheet(data);
+  ws['!cols'] = [{ wch: 12 }, { wch: 42 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 16 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Kits Garantia');
+  XLSX.writeFile(wb, 'Kits_Garantia.xlsx');
+}
+
+function exportWarrantyPDF(){
+  if(!warrantyResults || warrantyResults.length === 0) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'landscape' });
+
+  doc.setFontSize(16);
+  doc.setTextColor(28, 33, 40);
+  doc.text('Lista Consolidada de Kits de Garantia', 40, 40);
+
+  let totalGeral = 0;
+  const body = warrantyResults.map(r => {
+    const totalItem = r.qty * r.price;
+    totalGeral += totalItem;
+    return [
+      r.code,
+      r.desc,
+      Array.from(r.models).join(', '),
+      String(r.qty),
+      formatBRL(r.price),
+      formatBRL(totalItem)
+    ];
+  });
+
+  doc.autoTable({
+    startY: 60,
+    head: [['Código', 'Descrição', 'Modelo(s)', 'Qtd', 'Valor Unit.', 'Valor Total']],
+    body: body,
+    styles: { fontSize: 8, cellPadding: 4 },
+    headStyles: { fillColor: [255, 122, 26], textColor: [255, 255, 255] },
+    columnStyles: {
+      0: { cellWidth: 45 },
+      1: { cellWidth: 100 },
+      2: { cellWidth: 100 },
+      3: { cellWidth: 30, halign: 'center' },
+      4: { cellWidth: 50, halign: 'right' },
+      5: { cellWidth: 50, halign: 'right' }
+    },
+    didDrawPage: function(data) {
+      // Rodapé com data/hora
+      const now = new Date();
+      const dateStr = now.toLocaleString('pt-BR');
+      doc.setFontSize(9);
+      doc.setTextColor(107, 114, 128);
+      doc.text('Gerado em: ' + dateStr, 40, doc.internal.pageSize.height - 20);
+    }
+  });
+
+  // Total geral - posicionado corretamente
+  const finalY = doc.lastAutoTable.finalY + 20;
+  const pageWidth = doc.internal.pageSize.width;
+  
+  doc.setFontSize(12);
+  doc.setTextColor(255, 122, 26);
+  doc.setFont('helvetica', 'bold');
+  
+  // Calcular a posição X para alinhar à direita da tabela
+  // A tabela termina na posição: data.cursor.x (que é a posição final)
+  // Vamos usar a largura da página menos uma margem
+  const text = 'Total Geral: ' + formatBRL(totalGeral);
+  const textWidth = doc.getStringUnitWidth(text) * 12 / doc.internal.scaleFactor;
+  const rightMargin = 40;
+  const xPos = pageWidth - rightMargin - textWidth;
+  
+  doc.text(text, xPos, finalY);
+
+  doc.save('Kits_Garantia.pdf');
+}
+
+function switchModule(mod){
+  const catalogSection = document.getElementById('catalogSection');
+  const garantiaSection = document.getElementById('garantiaSection');
+  const tabCatalogo = document.getElementById('tab-catalogo');
+  const tabGarantia = document.getElementById('tab-garantia');
+
+  if(mod === 'catalogo'){
+    catalogSection.style.display = '';
+    garantiaSection.style.display = 'none';
+    tabCatalogo.classList.add('active');
+    tabGarantia.classList.remove('active');
+  } else {
+    catalogSection.style.display = 'none';
+    garantiaSection.style.display = '';
+    tabCatalogo.classList.remove('active');
+    tabGarantia.classList.add('active');
+  }
+}
+
+renderWarrantyList();
+renderWarrantyResults(null);
 
 </script>
 
