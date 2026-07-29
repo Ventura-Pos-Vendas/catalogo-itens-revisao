@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de Revisão — Peças por Modelo</title>
+<style>
+  :root{
+    --bg: #e7e7e7;
+    --panel: #ffffff;
+    --panel-2: #eef2f6;
+    --line: #dfe4ea;
+    --accent: #ff7a1a;
+    --accent-dim: #ff7a1a1a;
+    --blue: #ff7a1a;
+    --green: #16a34a;
+    --text: #1c2128;
+    --text-dim: #6b7280;
+    --mono: 'JetBrains Mono', 'Courier New', monospace;
+    --sans: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin:0; padding:0; }
+
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+  }
+
+  /* ======== HEADER ======== */
+  header{
+    padding: 30px 24px 22px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(120deg, #1f1f1f 0%, #464646 100%);
+  }
+  header .header-inner{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  header .logo{
+    height: 120px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+  }
+  @media (max-width: 760px){
+    header .logo{ height: 34px; }
+  }
+  header .tag{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #fff;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: inline-block;
+    background: var(--accent);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  header h1{
+    font-size: clamp(22px, 4vw, 30px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #e9e9e9;
+  }
+  header p{
+    color: var(--text-dim);
+    font-size: 13.5px;
+    margin-top: 6px;
+    color: #e9e9e9;
+  }
+
+  /* ======== LAYOUT ======== */
+  .wrap{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 760px){
+    .wrap{ grid-template-columns: 1fr; padding: 16px; }
+  }
+
+  /* ======== MODEL LIST (sidebar) ======== */
+  .model-list{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    height: fit-content;
+    position: sticky;
+    top: 16px;
+    box-shadow: 0 1px 3px rgba(16,24,40,.05);
+  }
+  @media (max-width: 760px){
+    .model-list{
+      position: static;
+      top: auto;
+      margin-bottom: 4px;
+      max-height: none;
+    }
+  }
+  .model-list .group-label{
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    padding: 12px 14px 6px;
+  }
+  .model-btn{
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-left: 3px solid transparent;
+    color: var(--text);
+    padding: 11px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    transition: background .15s, border-color .15s;
+  }
+  .model-btn:hover{ background: var(--panel-2); }
+  .model-btn.active{
+    background: var(--accent-dim);
+    border-left-color: var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .model-btn .count{
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text-dim);
+    background: var(--panel-2);
+    padding: 2px 6px;
+    border-radius: 999px;
+  }
+  .model-btn.active .count{ color: #fff; background: var(--accent); }
+
+  /* ======== DETAIL PANEL ======== */
+  .detail{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px;
+    min-height: 300px;
+    box-shadow: 0 1px 3px rgba(16,24,40,.05);
+  }
+  .detail-header{
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .detail-header h2{
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: var(--blue);
+  }
+  .detail-header .subtitle{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead th{
+    text-align: left;
+    font-size: 10.5px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 700;
+    padding: 8px 6px;
+    border-bottom: 2px solid var(--line);
+  }
+  thead th.num{ text-align: right; }
+  tbody td{
+    padding: 10px 6px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  tbody tr:hover{ background: var(--panel-2); }
+  th.photo-col, td.photo{
+    width: 56px;
+  }
+  .thumb{
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    display: block;
+    border: 1px solid var(--line);
+    background: var(--panel-2);
+    cursor: zoom-in;
+    transition: transform .15s;
+  }
+  .thumb:hover{ transform: scale(1.08); }
+  .thumb-placeholder{
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background: var(--panel-2);
+    border: 1px dashed var(--line);
+    color: var(--text-dim);
+  }
+
+  /* ======== LIGHTBOX ======== */
+  .lightbox-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(12,16,22,.82);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 30px;
+    cursor: zoom-out;
+  }
+  .lightbox-overlay.open{ display: flex; }
+  .lightbox-overlay img{
+    max-width: min(90vw, 640px);
+    max-height: 85vh;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.4);
+    object-fit: contain;
+    background: #fff;
+  }
+  .lightbox-caption{
+    position: absolute;
+    bottom: 28px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #fff;
+    font-size: 13.5px;
+    font-family: var(--sans);
+  }
+  .lightbox-close{
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    color: #fff;
+    font-size: 26px;
+    font-weight: 300;
+    cursor: pointer;
+    line-height: 1;
+    opacity: .8;
+  }
+  .lightbox-close:hover{ opacity: 1; }
+  /* ======== KIT SELECTOR ======== */
+  .kit-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .kit-btn{
+    text-align: left;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 13px 14px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    font-family: var(--sans);
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .kit-btn:hover{ border-color: var(--accent); background: var(--accent-dim); }
+  .kit-btn.active{
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .kit-btn .kit-count{
+    display: block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .kit-btn.active .kit-count{ color: var(--accent); }
+  .kit-hint{
+    color: var(--text-dim);
+    font-size: 13px;
+    padding: 14px 2px 4px;
+  }
+  .kit-section-title{
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 18px 0 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .kit-section-title .kit-item-count{
+    font-weight: 500;
+    font-size: 11.5px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+  }
+  thead th.center{ text-align: center; }
+  td.qty{
+    text-align: center;
+    font-family: var(--mono);
+    font-weight: 600;
+  }
+  td.unit{
+    text-align: right;
+    font-family: var(--mono);
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  td.unit.zero{ font-style: italic; }
+
+  td.code{
+    font-family: var(--mono);
+    color: var(--blue);
+    font-size: 12.5px;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  td.price{
+    text-align: right;
+    font-family: var(--mono);
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--green);
+  }
+  td.price.zero{ color: var(--text-dim); font-style: italic; font-weight: 500; }
+
+  tfoot td{
+    padding: 14px 6px 4px;
+    font-weight: 800;
+    font-size: 16px;
+    border-top: 2px solid var(--accent);
+  }
+  tfoot td.price{
+    color: var(--accent);
+    font-family: var(--mono);
+    text-align: right;
+  }
+
+  .empty-state{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 260px;
+    color: var(--text-dim);
+    gap: 8px;
+  }
+  .empty-state .big{ font-size: 34px; }
+
+  footer{
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 11.5px;
+    padding: 24px;
+    font-family: var(--mono);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img class="logo" id="logo" src="https://raw.githubusercontent.com/Ventura-Pos-Vendas/status-clientes/main/assets/logo.png" alt="Logo">
+    <div>
+      <div class="tag">Tabela de Itens · Kit de Revisão</div>
+      <h1>CATÁLOGO DE PEÇAS DE REVISÃO</h1>
+      <!--<p>Selecione o modelo ao lado para ver a lista de peças e o valor total do kit.</p>-->
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="model-list" id="modelList"></nav>
+  <main class="detail" id="detail">
+    <div class="empty-state">
+      <div class="big">🔧</div>
+      <div>Selecione um modelo na lista ao lado</div>
+    </div>
+  </main>
+</div>
+
+<footer>Valores sujeitos a alteração sem aviso prévio.</footer>
+
+<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox(event)">
+  <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
+  <img id="lightbox-img" src="" alt="">
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+</div>
+
+<script>
+/* =====================================================================
+ 
+   ===================================================================== */
+const MODELS = [
+  {
+    name: "ATV - M250",
+    kits: [
+      /*{
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/300_277/img-20230519-130024.jpg"  },
+          { code: "56294", desc: "Filtro de Ar", qty: 1, price: 97.51, photo: ""  },
+          { code: "37185", desc: "Vela - CR7HSA (NGK)", qty: 1, price: 120.63, photo: "https://cdn.awsli.com.br/600x450/437/437289/produto/35569466/d2dcdd0151.jpg"  },
+          { code: "37292", desc: "Pastilha de Freio - TRASEIRO", qty: 1, price: 48.22, photo: "https://www.aspshop.eu/data/product/480_480/img-20230914-083519.jpg?ts=1769945929"  },
+          { code: "37291", desc: "Pastilha de Freio - DIANTEIRO", qty: 1, price: 88.48, photo: "https://www.aspshop.eu/data/product/480_480/img-20250211-084508.jpg?ts=1770045813"  },
+          { code: "37137", desc: "Cabo Acelerador", qty: 1, price: 228.98, photo: ""  },
+          { code: "62204", desc: "Cabo Acelerador", qty: 1, price: 96.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250617-122752.jpg?ts=1769902439"  },
+        ]
+      },*/
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "56294", desc: "Filtro de Ar", qty: 1, price: 97.51, photo: ""  },
+          { code: "37185", desc: "Vela - CR7HSA (NGK)", qty: 1, price: 120.63, photo: "https://cdn.awsli.com.br/600x450/437/437289/produto/35569466/d2dcdd0151.jpg"  },
+          { code: "37292", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 48.22, photo: "https://www.aspshop.eu/data/product/480_480/img-20230914-083519.jpg?ts=1769945929"  },
+          { code: "37291", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 88.48, photo: "https://www.aspshop.eu/data/product/480_480/img-20250211-084508.jpg?ts=1770045813"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/300_277/img-20230519-130024.jpg"  },
+          { code: "56294", desc: "Filtro de Ar", qty: 1, price: 97.51, photo: ""  },
+          { code: "37185", desc: "Vela - CR7HSA (NGK)", qty: 1, price: 120.63, photo: "https://cdn.awsli.com.br/600x450/437/437289/produto/35569466/d2dcdd0151.jpg"  },
+          { code: "37292", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 48.22, photo: "https://www.aspshop.eu/data/product/480_480/img-20230914-083519.jpg?ts=1769945929"  },
+          { code: "37291", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 88.48, photo: "https://www.aspshop.eu/data/product/480_480/img-20250211-084508.jpg?ts=1770045813"  },
+          { code: "37137", desc: "Cabo Acelerador", qty: 1, price: 228.98, photo: ""  },
+          { code: "62204", desc: "Cabo Acelerador", qty: 1, price: 96.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250617-122752.jpg?ts=1769902439"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "56294", desc: "Filtro de Ar", qty: 1, price: 97.51, photo: ""  },
+          { code: "37185", desc: "Vela - CR7HSA (NGK)", qty: 1, price: 120.63, photo: "https://cdn.awsli.com.br/600x450/437/437289/produto/35569466/d2dcdd0151.jpg"  },
+          { code: "37292", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 48.22, photo: "https://www.aspshop.eu/data/product/480_480/img-20230914-083519.jpg?ts=1769945929"  },
+          { code: "37291", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 88.48, photo: "https://www.aspshop.eu/data/product/480_480/img-20250211-084508.jpg?ts=1770045813"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/300_277/img-20230519-130024.jpg"  },
+          { code: "56294", desc: "Filtro de Ar", qty: 1, price: 97.51, photo: ""  },
+          { code: "37185", desc: "Vela - CR7HSA (NGK)", qty: 1, price: 120.63, photo: "https://cdn.awsli.com.br/600x450/437/437289/produto/35569466/d2dcdd0151.jpg"  },
+          { code: "37292", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 48.22, photo: "https://www.aspshop.eu/data/product/480_480/img-20230914-083519.jpg?ts=1769945929"  },
+          { code: "37291", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 88.48, photo: "https://www.aspshop.eu/data/product/480_480/img-20250211-084508.jpg?ts=1770045813"  },
+          { code: "37137", desc: "Cabo Acelerador", qty: 1, price: 228.98, photo: ""  },
+          { code: "62204", desc: "Cabo Acelerador", qty: 1, price: 96.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250617-122752.jpg?ts=1769902439"  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/300_277/img-20230519-130024.jpg"  },
+          { code: "56294", desc: "Filtro de Ar", qty: 2, price: 97.51, photo: ""  },
+          { code: "37185", desc: "Vela - CR7HSA (NGK)", qty: 2, price: 120.63, photo: "https://cdn.awsli.com.br/600x450/437/437289/produto/35569466/d2dcdd0151.jpg"  },
+          { code: "37292", desc: "Pastilha de Freio - TRASEIRO", qty: 4, price: 48.22, photo: "https://www.aspshop.eu/data/product/480_480/img-20230914-083519.jpg?ts=1769945929"  },
+          { code: "37291", desc: "Pastilha de Freio - DIANTEIRO", qty: 4, price: 88.48, photo: "https://www.aspshop.eu/data/product/480_480/img-20250211-084508.jpg?ts=1770045813"  },
+          { code: "37137", desc: "Cabo Acelerador", qty: 1, price: 228.98, photo: ""  },
+          { code: "62204", desc: "Cabo Acelerador", qty: 1, price: 96.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250617-122752.jpg?ts=1769902439"  },
+        ]
+      }
+    ]
+  },
+  {
+    name: "ATV - 400",
+    kits: [
+      /*{
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "23212", desc: "Filtro de Ar", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26291", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200529-085544.jpg?ts=1769785156"  },
+          { code: "27551", desc: "Cabo Acelerador", qty: 1, price: 87.76, photo: "https://www.aspshop.eu/data/product/480_480/img-20231204-135329.jpg?ts=1769816273"  },
+          { code: "70637", desc: "Cabo Freio de Mão", qty: 1, price: 43.88, photo: "https://www.aspshop.eu/data/product/480_480/70637.png?ts=1769904359"  },
+        ]
+      },*/
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "23212", desc: "Filtro de Ar", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26291", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200529-085544.jpg?ts=1769785156"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "23212", desc: "Filtro de Ar", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26291", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200529-085544.jpg?ts=1769785156"  },
+          { code: "27551", desc: "Cabo Acelerador", qty: 1, price: 87.76, photo: "https://www.aspshop.eu/data/product/480_480/img-20231204-135329.jpg?ts=1769816273"  },
+          { code: "70637", desc: "Cabo Freio de Mão", qty: 1, price: 43.88, photo: "https://www.aspshop.eu/data/product/480_480/70637.png?ts=1769904359"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "23212", desc: "Filtro de Ar", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26291", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200529-085544.jpg?ts=1769785156"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "23212", desc: "Filtro de Ar", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26291", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200529-085544.jpg?ts=1769785156"  },
+          { code: "27551", desc: "Cabo Acelerador", qty: 1, price: 87.76, photo: "https://www.aspshop.eu/data/product/480_480/img-20231204-135329.jpg?ts=1769816273"  },
+          { code: "70637", desc: "Cabo Freio de Mão", qty: 1, price: 43.88, photo: "https://www.aspshop.eu/data/product/480_480/70637.png?ts=1769904359"  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "23212", desc: "Filtro de Ar", qty: 2, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 2, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 6, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26291", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200529-085544.jpg?ts=1769785156"  },
+          { code: "27551", desc: "Cabo Acelerador", qty: 1, price: 87.76, photo: "https://www.aspshop.eu/data/product/480_480/img-20231204-135329.jpg?ts=1769816273"  },
+          { code: "70637", desc: "Cabo Freio de Mão", qty: 1, price: 43.88, photo: "https://www.aspshop.eu/data/product/480_480/70637.png?ts=1769904359"  },
+        ]
+      }
+    ]
+  },
+  {
+    name: "ATV - 420",
+    kits: [
+      /*{
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "23212", desc: "Filtro de Ar", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "27551", desc: "Cabo Acelerador", qty: 1, price: 87.76, photo: "https://www.aspshop.eu/data/product/480_480/img-20231204-135329.jpg?ts=1769816273"  },
+          { code: "70637", desc: "Cabo Freio de Mão", qty: 1, price: 43.88, photo: "https://www.aspshop.eu/data/product/1024_1024/70637.png"  },
+        ]
+      },*/
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "23212", desc: "Filtro de Ar", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "23212", desc: "Filtro de Ar", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "27551", desc: "Cabo Acelerador", qty: 1, price: 87.76, photo: "https://www.aspshop.eu/data/product/480_480/img-20231204-135329.jpg?ts=1769816273"  },
+          { code: "70637", desc: "Cabo Freio de Mão", qty: 1, price: 43.88, photo: "https://www.aspshop.eu/data/product/1024_1024/70637.png"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "23212", desc: "Filtro de Ar", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "23212", desc: "Filtro de Ar", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "27551", desc: "Cabo Acelerador", qty: 1, price: 87.76, photo: "https://www.aspshop.eu/data/product/480_480/img-20231204-135329.jpg?ts=1769816273"  },
+          { code: "70637", desc: "Cabo Freio de Mão", qty: 1, price: 43.88, photo: "https://www.aspshop.eu/data/product/1024_1024/70637.png"  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "23212", desc: "Filtro de Ar", qty: 2, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/23212.png?ts=1769801949"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 2, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 6, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "27551", desc: "Cabo Acelerador", qty: 1, price: 87.76, photo: "https://www.aspshop.eu/data/product/480_480/img-20231204-135329.jpg?ts=1769816273"  },
+          { code: "70637", desc: "Cabo Freio de Mão", qty: 1, price: 43.88, photo: "https://www.aspshop.eu/data/product/1024_1024/70637.png"  },
+        ]
+      }
+    ]
+  },
+  {
+    name: "ATV - 500 PROMAX",
+    kits: [
+      {
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "36522", desc: "Filtro de Ar", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20240229-082724.jpg?ts=1770035425"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "36522", desc: "Filtro de Ar", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20240229-082724.jpg?ts=1770035425"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "36485", desc: "Cabo Acelerador", qty: 1, price: 58.15, photo: "https://www.aspshop.eu/data/product/480_480/img-20230228-124733.jpg?ts=1769787050"  },
+          { code: "70637", desc: "Cabo Freio de Mão", qty: 1, price: 43.88, photo: "https://www.aspshop.eu/data/product/480_480/70637.png?ts=1769904359"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "36522", desc: "Filtro de Ar", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20240229-082724.jpg?ts=1770035425"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "36522", desc: "Filtro de Ar", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20240229-082724.jpg?ts=1770035425"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "36485", desc: "Cabo Acelerador", qty: 1, price: 58.15, photo: "https://www.aspshop.eu/data/product/480_480/img-20230228-124733.jpg?ts=1769787050"  },
+          { code: "70637", desc: "Cabo Freio de Mão", qty: 1, price: 43.88, photo: "https://www.aspshop.eu/data/product/480_480/70637.png?ts=1769904359"  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 3, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "36522", desc: "Filtro de Ar", qty: 2, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20240229-082724.jpg?ts=1770035425"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 2, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 6, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "36485", desc: "Cabo Acelerador", qty: 1, price: 58.15, photo: "https://www.aspshop.eu/data/product/480_480/img-20230228-124733.jpg?ts=1769787050"  },
+          { code: "70637", desc: "Cabo Freio de Mão", qty: 1, price: 43.88, photo: "https://www.aspshop.eu/data/product/480_480/70637.png?ts=1769904359"  },
+        ]
+      }
+    ]
+  },
+  {
+    name: "ATV - M550L",
+    kits: [
+      {
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "35361", desc: "Filtro de Ar", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20201112-081644.jpg?ts=1769812013"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "35361", desc: "Filtro de Ar", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20201112-081644.jpg?ts=1769812013"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "36423", desc: "Cabo Acelerador", qty: 1, price: 64.83, photo: "https://www.aspshop.eu/data/product/480_480/img-20231130-090043.jpg?ts=1769784042"  },
+          { code: "36424", desc: "Cabo Freio de Mão", qty: 1, price: 86.32, photo: "https://www.aspshop.eu/data/product/480_480/img-20210913-143609.jpg?ts=1770127122"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "35361", desc: "Filtro de Ar", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20201112-081644.jpg?ts=1769812013"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "35361", desc: "Filtro de Ar", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20201112-081644.jpg?ts=1769812013"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "36423", desc: "Cabo Acelerador", qty: 1, price: 64.83, photo: "https://www.aspshop.eu/data/product/480_480/img-20231130-090043.jpg?ts=1769784042"  },
+          { code: "36424", desc: "Cabo Freio de Mão", qty: 1, price: 86.32, photo: "https://www.aspshop.eu/data/product/480_480/img-20210913-143609.jpg?ts=1770127122"  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 3, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "35361", desc: "Filtro de Ar", qty: 2, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20201112-081644.jpg?ts=1769812013"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 2, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 6, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "36423", desc: "Cabo Acelerador", qty: 1, price: 64.83, photo: "https://www.aspshop.eu/data/product/480_480/img-20231130-090043.jpg?ts=1769784042"  },
+          { code: "36424", desc: "Cabo Freio de Mão", qty: 1, price: 86.32, photo: "https://www.aspshop.eu/data/product/480_480/img-20210913-143609.jpg?ts=1770127122"  },
+        ]
+      }
+    ]
+  },
+  {
+    name: "ATV - M570",
+    kits: [
+      {
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "36522", desc: "Filtro de Ar", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20240229-082724.jpg?ts=1770035425"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 1, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "36522", desc: "Filtro de Ar", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20240229-082724.jpg?ts=1770035425"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 1, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "36423", desc: "Cabo Acelerador", qty: 1, price: 64.83, photo: "https://www.aspshop.eu/data/product/480_480/img-20231130-090043.jpg?ts=1769784042"  },
+          { code: "36424", desc: "Cabo Freio de Mão", qty: 1, price: 86.32, photo: "https://www.aspshop.eu/data/product/480_480/img-20210913-143609.jpg?ts=1770127122"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "36522", desc: "Filtro de Ar", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20240229-082724.jpg?ts=1770035425"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 1, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "36522", desc: "Filtro de Ar", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20240229-082724.jpg?ts=1770035425"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 1, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 3, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "36423", desc: "Cabo Acelerador", qty: 1, price: 64.83, photo: "https://www.aspshop.eu/data/product/480_480/img-20231130-090043.jpg?ts=1769784042"  },
+          { code: "36424", desc: "Cabo Freio de Mão", qty: 1, price: 86.32, photo: "https://www.aspshop.eu/data/product/480_480/img-20210913-143609.jpg?ts=1770127122"  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 3, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "36522", desc: "Filtro de Ar", qty: 2, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20240229-082724.jpg?ts=1770035425"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 2, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "22245", desc: "Pastilha de Freio - CONVENCIONAL", qty: 6, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "36423", desc: "Cabo Acelerador", qty: 1, price: 64.83, photo: "https://www.aspshop.eu/data/product/480_480/img-20231130-090043.jpg?ts=1769784042"  },
+          { code: "36424", desc: "Cabo Freio de Mão", qty: 1, price: 86.32, photo: "https://www.aspshop.eu/data/product/480_480/img-20210913-143609.jpg?ts=1770127122"  },
+        ]
+      }
+    ]
+  },
+  {
+    name: "ATV - M650",
+    kits: [
+      {
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "38693", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20240306-144728.jpg?ts=1769809138"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 1, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "70507", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 63.38, photo: "https://www.aspshop.eu/data/product/480_480/img-20200608-105343.jpg?ts=1769791358"  },
+          { code: "22245", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "38693", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20240306-144728.jpg?ts=1769809138"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 1, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "70507", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 63.38, photo: "https://www.aspshop.eu/data/product/480_480/img-20200608-105343.jpg?ts=1769791358"  },
+          { code: "22245", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "38306", desc: "Cabo Acelerador", qty: 1, price: 64.83, photo: "https://www.aspshop.eu/data/product/480_480/img-20220510-121413.jpg?ts=1769847236"  },
+          { code: "38643", desc: "Cabo Freio de Mão", qty: 1, price: 81.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20240226-091314.jpg?ts=1769781569"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "38693", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20240306-144728.jpg?ts=1769809138"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 1, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "70507", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 63.38, photo: "https://www.aspshop.eu/data/product/480_480/img-20200608-105343.jpg?ts=1769791358"  },
+          { code: "22245", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "38693", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20240306-144728.jpg?ts=1769809138"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 1, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "70507", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 63.38, photo: "https://www.aspshop.eu/data/product/480_480/img-20200608-105343.jpg?ts=1769791358"  },
+          { code: "22245", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "38306", desc: "Cabo Acelerador", qty: 1, price: 64.83, photo: "https://www.aspshop.eu/data/product/480_480/img-20220510-121413.jpg?ts=1769847236"  },
+          { code: "38643", desc: "Cabo Freio de Mão", qty: 1, price: 81.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20240226-091314.jpg?ts=1769781569"  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 3, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "70842", desc: "Filtro de Combustível", qty: 1, price: 83.07, photo: "https://www.aspshop.eu/data/product/480_480/img-20230518-082421.jpg?ts=1769863654"  },
+          { code: "38693", desc: "Filtro de Ar", qty: 2, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20240306-144728.jpg?ts=1769809138"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 2, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "70507", desc: "Pastilha de Freio - DIANTEIRO", qty: 4, price: 63.38, photo: "https://www.aspshop.eu/data/product/480_480/img-20200608-105343.jpg?ts=1769791358"  },
+          { code: "22245", desc: "Pastilha de Freio - TRASEIRO", qty: 4, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20230123-084614.jpg?ts=1769779711"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "38306", desc: "Cabo Acelerador", qty: 1, price: 64.83, photo: "https://www.aspshop.eu/data/product/480_480/img-20220510-121413.jpg?ts=1769847236"  },
+          { code: "38643", desc: "Cabo Freio de Mão", qty: 1, price: 81.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20240226-091314.jpg?ts=1769781569"  },
+        ]
+      }
+    ]
+  },
+  {
+    name: "ATV - LANDFORCE 550",
+    kits: [
+      {
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "65165", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 289.29, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-152410.jpg?ts=1769791146"  },
+          { code: "65166", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 321.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-121025.jpg?ts=1769820476"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "65130", desc: "Filtro de Combustível", qty: 1, price: 54.72, photo: "https://www.aspshop.eu/data/product/480_480/img-20250129-095822.jpg?ts=1770048421"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "65165", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 289.29, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-152410.jpg?ts=1769791146"  },
+          { code: "65166", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 321.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-121025.jpg?ts=1769820476"  },
+          { code: "63549", desc: "Cabo Acelerador", qty: 1, price: 64.83, photo: ""  },
+          { code: "65203", desc: "Cabo Freio de Mão", qty: 1, price: 218.5, photo: "https://www.aspshop.eu/data/product/480_480/img-20250602-132856.jpg?ts=1769792309"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "65165", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 289.29, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-152410.jpg?ts=1769791146"  },
+          { code: "65166", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 321.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-121025.jpg?ts=1769820476"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "65130", desc: "Filtro de Combustível", qty: 1, price: 54.72, photo: "https://www.aspshop.eu/data/product/480_480/img-20250129-095822.jpg?ts=1770048421"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "65165", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 289.29, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-152410.jpg?ts=1769791146"  },
+          { code: "65166", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 321.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-121025.jpg?ts=1769820476"  },
+          { code: "63549", desc: "Cabo Acelerador", qty: 1, price: 64.83, photo: ""  },
+          { code: "65203", desc: "Cabo Freio de Mão", qty: 1, price: 218.5, photo: "https://www.aspshop.eu/data/product/480_480/img-20250602-132856.jpg?ts=1769792309"  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 3, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "65130", desc: "Filtro de Combustível", qty: 1, price: 54.72, photo: "https://www.aspshop.eu/data/product/480_480/img-20250129-095822.jpg?ts=1770048421"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 2, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 2, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "65165", desc: "Pastilha de Freio - DIANTEIRO", qty: 4, price: 289.29, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-152410.jpg?ts=1769791146"  },
+          { code: "65166", desc: "Pastilha de Freio - TRASEIRO", qty: 4, price: 321.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-121025.jpg?ts=1769820476"  },
+          { code: "63549", desc: "Cabo Acelerador", qty: 1, price: 64.83, photo: ""  },
+          { code: "65203", desc: "Cabo Freio de Mão", qty: 1, price: 218.5, photo: "https://www.aspshop.eu/data/product/480_480/img-20250602-132856.jpg?ts=1769792309"  },
+        ]
+      }
+    ]
+  },
+  {
+    name: "ATV - LANDFORCE 650",
+    kits: [
+      {
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 1, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "65165", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 289.29, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-152410.jpg?ts=1769791146"  },
+          { code: "65166", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 321.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-121025.jpg?ts=1769820476"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "65130", desc: "Filtro de Combustível", qty: 1, price: 54.72, photo: "https://www.aspshop.eu/data/product/480_480/img-20250129-095822.jpg?ts=1770048421"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 1, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "65165", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 289.29, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-152410.jpg?ts=1769791146"  },
+          { code: "65166", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 321.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-121025.jpg?ts=1769820476"  },
+          { code: "65203", desc: "Cabo Freio de Mão", qty: 1, price: 218.5, photo: "https://www.aspshop.eu/data/product/480_480/img-20250602-132856.jpg?ts=1769792309"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 1, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "65165", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 289.29, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-152410.jpg?ts=1769791146"  },
+          { code: "65166", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 321.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-121025.jpg?ts=1769820476"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "65130", desc: "Filtro de Combustível", qty: 1, price: 54.72, photo: "https://www.aspshop.eu/data/product/480_480/img-20250129-095822.jpg?ts=1770048421"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 1, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "65165", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 289.29, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-152410.jpg?ts=1769791146"  },
+          { code: "65166", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 321.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-121025.jpg?ts=1769820476"  },
+          { code: "65203", desc: "Cabo Freio de Mão", qty: 1, price: 218.5, photo: "https://www.aspshop.eu/data/product/480_480/img-20250602-132856.jpg?ts=1769792309"  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "38091", desc: "Filtro de Óleo", qty: 3, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/oil-filter-m565.jpg?ts=1769798504"  },
+          { code: "65130", desc: "Filtro de Combustível", qty: 1, price: 54.72, photo: "https://www.aspshop.eu/data/product/480_480/img-20250129-095822.jpg?ts=1770048421"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 2, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "38151", desc: "Vela - DPR8EA-9(NGK)", qty: 2, price: 75.3, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-093754.jpg?ts=1769821292"  },
+          { code: "65165", desc: "Pastilha de Freio - DIANTEIRO", qty: 4, price: 289.29, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-152410.jpg?ts=1769791146"  },
+          { code: "65166", desc: "Pastilha de Freio - TRASEIRO", qty: 4, price: 321.43, photo: "https://www.aspshop.eu/data/product/480_480/img-20250304-121025.jpg?ts=1769820476"  },
+          { code: "65203", desc: "Cabo Freio de Mão", qty: 1, price: 218.5, photo: "https://www.aspshop.eu/data/product/480_480/img-20250602-132856.jpg?ts=1769792309"  },
+        ]
+      }
+    ]
+  },
+  {
+    name: "UTV - T-ARCHOON 450",
+    kits: [
+      /*{
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20230519-125945.jpg?ts=1769948508"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "48414", desc: "Pastilha de Freio", qty: 4, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+          { code: "47710", desc: "Cabo Acelerador", qty: 1, price: 115.21, photo: ""  },
+          { code: "48197", desc: "Cabo Freio de Mão", qty: 1, price: 122.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20221201-095418.jpg?ts=1769984373"  },
+        ]
+      },*/
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "48414", desc: "Pastilha de Freio", qty: 4, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20230519-125945.jpg?ts=1769948508"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "48414", desc: "Pastilha de Freio", qty: 4, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+          { code: "47710", desc: "Cabo Acelerador", qty: 1, price: 115.21, photo: ""  },
+          { code: "48197", desc: "Cabo Freio de Mão", qty: 1, price: 122.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20221201-095418.jpg?ts=1769984373"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "48414", desc: "Pastilha de Freio", qty: 4, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20230519-125945.jpg?ts=1769948508"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "48414", desc: "Pastilha de Freio", qty: 4, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+          { code: "47710", desc: "Cabo Acelerador", qty: 1, price: 115.21, photo: ""  },
+          { code: "48197", desc: "Cabo Freio de Mão", qty: 1, price: 122.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20221201-095418.jpg?ts=1769984373"  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20230519-125945.jpg?ts=1769948508"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 2, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "22419", desc: "Vela - NGK DR8EA", qty: 1, price: 61.04, photo: "https://www.aspshop.eu/data/product/480_480/img-20230308-105230.jpg?ts=1769837949"  },
+          { code: "48414", desc: "Pastilha de Freio", qty: 8, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+          { code: "47710", desc: "Cabo Acelerador", qty: 1, price: 115.21, photo: ""  },
+          { code: "48197", desc: "Cabo Freio de Mão", qty: 1, price: 122.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20221201-095418.jpg?ts=1769984373"  },
+        ]
+      }
+    ]
+  },
+  {
+    name: "UTV - T-ARCHOON 550",
+    kits: [
+      {
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "48428", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 42.26, photo: ""  },
+          { code: "48414", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20230519-125945.jpg?ts=1769948508"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "48428", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 42.26, photo: ""  },
+          { code: "48414", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+          { code: "47240", desc: "Cabo Acelerador", qty: 1, price: 144.65, photo: ""  },
+          { code: "47239", desc: "Cabo Freio de Mão", qty: 1, price: 128.57, photo: ""  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "48428", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 42.26, photo: ""  },
+          { code: "48414", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20230519-125945.jpg?ts=1769948508"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "48428", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 42.26, photo: ""  },
+          { code: "48414", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+          { code: "47240", desc: "Cabo Acelerador", qty: 1, price: 144.65, photo: ""  },
+          { code: "47239", desc: "Cabo Freio de Mão", qty: 1, price: 128.57, photo: ""  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 3, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20230519-125945.jpg?ts=1769948508"  },
+          { code: "73824", desc: "Filtro de Ar", qty: 2, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "48428", desc: "Pastilha de Freio - DIANTEIRO", qty: 4, price: 42.26, photo: ""  },
+          { code: "48414", desc: "Pastilha de Freio - TRASEIRO", qty: 4, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+          { code: "47240", desc: "Cabo Acelerador", qty: 1, price: 144.65, photo: ""  },
+          { code: "47239", desc: "Cabo Freio de Mão", qty: 1, price: 128.57, photo: ""  },
+        ]
+      }
+    ]
+  },
+  {
+    name: "UTV - T-BOSS 550",
+    kits: [
+      {
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "73824", desc: "Filtro de Ar (PAPEL)", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35361", desc: "Filtro de Ar (ESPUMA)", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20201112-081644.jpg?ts=1769812013"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "48428", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 42.26, photo: "https://s.alicdn.com/@sc04/kf/Hb50bd837e6d247c4981416cdb1e912b5a.jpg"  },
+          { code: "48414", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20230519-125945.jpg?ts=1769948508"  },
+          { code: "73824", desc: "Filtro de Ar (PAPEL)", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35361", desc: "Filtro de Ar (ESPUMA)", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20201112-081644.jpg?ts=1769812013"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "48428", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 42.26, photo: "https://s.alicdn.com/@sc04/kf/Hb50bd837e6d247c4981416cdb1e912b5a.jpg"  },
+          { code: "48414", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "48196", desc: "Cabo Acelerador", qty: 1, price: 144.65, photo: "https://www.aspshop.eu/data/product/480_480/img-20221202-115636.jpg?ts=1769959273"  },
+          { code: "48197", desc: "Cabo Freio de Mão", qty: 1, price: 122.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20221201-095418.jpg?ts=1769984373"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "73824", desc: "Filtro de Ar (PAPEL)", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35361", desc: "Filtro de Ar (ESPUMA)", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20201112-081644.jpg?ts=1769812013"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "48428", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 42.26, photo: "https://s.alicdn.com/@sc04/kf/Hb50bd837e6d247c4981416cdb1e912b5a.jpg"  },
+          { code: "48414", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 1, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20230519-125945.jpg?ts=1769948508"  },
+          { code: "73824", desc: "Filtro de Ar (PAPEL)", qty: 1, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35361", desc: "Filtro de Ar (ESPUMA)", qty: 1, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20201112-081644.jpg?ts=1769812013"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 1, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "48428", desc: "Pastilha de Freio - DIANTEIRO", qty: 2, price: 42.26, photo: "https://s.alicdn.com/@sc04/kf/Hb50bd837e6d247c4981416cdb1e912b5a.jpg"  },
+          { code: "48414", desc: "Pastilha de Freio - TRASEIRO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "48196", desc: "Cabo Acelerador", qty: 1, price: 144.65, photo: "https://www.aspshop.eu/data/product/480_480/img-20221202-115636.jpg?ts=1769959273"  },
+          { code: "48197", desc: "Cabo Freio de Mão", qty: 1, price: 122.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20221201-095418.jpg?ts=1769984373"  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "35223", desc: "Filtro de Óleo", qty: 3, price: 69.52, photo: "https://www.aspshop.eu/data/product/480_480/img-20200814-140955.jpg?ts=1769792479"  },
+          { code: "48318", desc: "Filtro de Combustível", qty: 1, price: 83.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20230519-125945.jpg?ts=1769948508"  },
+          { code: "73824", desc: "Filtro de Ar (PAPEL)", qty: 2, price: 146.27, photo: "https://www.aspshop.eu/data/product/480_480/img-20220425-102409.jpg?ts=1769797947"  },
+          { code: "35361", desc: "Filtro de Ar (ESPUMA)", qty: 2, price: 150.42, photo: "https://www.aspshop.eu/data/product/480_480/img-20201112-081644.jpg?ts=1769812013"  },
+          { code: "35105", desc: "Vela - DPR7EA-9(NGK)", qty: 2, price: 75.3, photo: "https://massimomotor.com/cdn/shop/files/DPR7EA-9-1.jpg?v=1768924873&width=2048"  },
+          { code: "48428", desc: "Pastilha de Freio - DIANTEIRO", qty: 4, price: 42.26, photo: "https://s.alicdn.com/@sc04/kf/Hb50bd837e6d247c4981416cdb1e912b5a.jpg"  },
+          { code: "48414", desc: "Pastilha de Freio - TRASEIRO", qty: 4, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200625-092819.jpg?ts=1769832074"  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 2, price: 42.26, photo: "https://www.aspshop.eu/data/product/480_480/img-20200708-151130.jpg?ts=1769786491"  },
+          { code: "48196", desc: "Cabo Acelerador", qty: 1, price: 144.65, photo: "https://www.aspshop.eu/data/product/480_480/img-20221202-115636.jpg?ts=1769959273"  },
+          { code: "48197", desc: "Cabo Freio de Mão", qty: 1, price: 122.25, photo: "https://www.aspshop.eu/data/product/480_480/img-20221201-095418.jpg?ts=1769984373"  },
+        ]
+      }
+    ]
+  }
+  /*{
+    name: "UTV - LH800",
+    kits: [
+      {
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
+          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
+          { code: "84268", desc: "Filtro de Ar", qty: 1, price: 298.86, photo: ""  },
+          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
+          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
+          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
+          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
+          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
+        ]
+      },
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
+          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
+          { code: "84268", desc: "Filtro de Ar", qty: 1, price: 298.86, photo: ""  },
+          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
+          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
+          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
+          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
+          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
+          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
+          { code: "84268", desc: "Filtro de Ar", qty: 1, price: 298.86, photo: ""  },
+          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
+          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
+          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
+          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
+          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
+          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
+          { code: "84268", desc: "Filtro de Ar", qty: 1, price: 298.86, photo: ""  },
+          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
+          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
+          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
+          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
+          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
+          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
+          { code: "84268", desc: "Filtro de Ar", qty: 1, price: 298.86, photo: ""  },
+          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
+          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
+          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
+          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
+          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
+          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
+          { code: "84268", desc: "Filtro de Ar", qty: 1, price: 298.86, photo: ""  },
+          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
+          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
+          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
+          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
+          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
+        ]
+      }
+    ]
+  },
+  {
+    name: "UTV - LH1100",
+    kits: [
+      {
+        name: "Kit Revisão 20H",
+        parts: [
+          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
+          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
+          { code: "86369", desc: "Filtro de Ar", qty: 1, price: 431.23, photo: ""  },
+          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
+          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
+          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
+          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
+          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
+        ]
+      },
+      {
+        name: "Kit Revisão 100H",
+        parts: [
+          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
+          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
+          { code: "86369", desc: "Filtro de Ar", qty: 1, price: 431.23, photo: ""  },
+          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
+          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
+          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
+          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
+          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
+        ]
+      },
+      {
+        name: "Kit Revisão 200H",
+        parts: [
+          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
+          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
+          { code: "86369", desc: "Filtro de Ar", qty: 1, price: 431.23, photo: ""  },
+          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
+          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
+          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
+          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
+          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
+        ]
+      },
+      {
+        name: "Kit Revisão Simples (300H)",
+        parts: [
+          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
+          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
+          { code: "86369", desc: "Filtro de Ar", qty: 1, price: 431.23, photo: ""  },
+          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
+          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
+          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
+          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
+          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
+        ]
+      },
+      {
+        name: "Kit Revisão Completa (400H)",
+        parts: [
+          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
+          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
+          { code: "86369", desc: "Filtro de Ar", qty: 1, price: 431.23, photo: ""  },
+          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
+          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
+          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
+          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
+          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
+        ]
+      },
+      {
+        name: "Kit Período Garantia Completo",
+        parts: [
+          { code: "10791", desc: "Filtro de Óleo", qty: 1, price: 1.08, photo: ""  },
+          { code: "10789", desc: "Filtro de Combustível", qty: 1, price: 1.81, photo: ""  },
+          { code: "86369", desc: "Filtro de Ar", qty: 1, price: 431.23, photo: ""  },
+          { code: "86326", desc: "Pastilha de Freio - DIANTEIRA", qty: 1, price: 166.32, photo: ""  },
+          { code: "86333", desc: "Pastilha de Freio - TRASEIRA L/D", qty: 1, price: 141.76, photo: ""  },
+          { code: "86454", desc: "Pastilha de Freio - TRASEIRA L/E", qty: 1, price: 141.76, photo: ""  },
+          { code: "26292", desc: "Pastilha de Freio - ESTACIONAMENTO", qty: 1, price: 42.26, photo: ""  },
+          { code: "84180", desc: "Cabo Acelerador", qty: 1, price: 116.11, photo: ""  },
+          { code: "73202", desc: "Cabo Freio de Mão", qty: 1, price: 72.77, photo: ""  },
+        ]
+      }
+    ]
+  },*/
+
+
+];
+/* ===================================================================== */
+
+/* =====================================================================
+   LOGO — cole aqui a URL da imagem da logo (ex.: link "raw" de uma
+   imagem hospedada no GitHub, algo como:
+   https://raw.githubusercontent.com/usuario/repositorio/main/logo.png )
+   Deixe em branco ("") para não exibir nenhuma logo.
+   ===================================================================== */
+const LOGO_URL = "";
+
+function formatBRL(v){
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function renderList(){
+  const listEl = document.getElementById('modelList');
+  listEl.innerHTML = '<div class="group-label">Modelos (' + MODELS.length + ')</div>';
+  MODELS.forEach((model, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'model-btn';
+    btn.id = 'model-btn-' + idx;
+    btn.innerHTML = '<span>' + model.name + '</span><span class="count">' + model.kits.length + ' kits</span>';
+    btn.addEventListener('click', () => selectModel(idx));
+    listEl.appendChild(btn);
+  });
+}
+
+let currentModelIdx = null;
+let currentKitIdx = null;
+
+function selectModel(idx){
+  currentModelIdx = idx;
+  currentKitIdx = null;
+  document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('model-btn-' + idx).classList.add('active');
+  renderDetail();
+}
+
+function selectKit(kitIdx){
+  currentKitIdx = kitIdx;
+  renderDetail();
+}
+
+function renderDetail(){
+  const detailEl = document.getElementById('detail');
+
+  if(currentModelIdx === null){
+    detailEl.innerHTML =
+      '<div class="empty-state">' +
+        '<div class="big">🔧</div>' +
+        '<div>Selecione um modelo na lista ao lado</div>' +
+      '</div>';
+    return;
+  }
+
+  const model = MODELS[currentModelIdx];
+
+  const kitButtons = model.kits.map((kit, ki) => {
+    const activeClass = ki === currentKitIdx ? ' active' : '';
+    return '<button class="kit-btn' + activeClass + '" onclick="selectKit(' + ki + ')">' +
+      '<span>' + kit.name + '</span>' +
+      '<span class="kit-count">' + kit.parts.length + ' itens</span>' +
+      '</button>';
+  }).join('');
+
+  let html =
+    '<div class="detail-header">' +
+      '<div>' +
+        '<h2>' + model.name + '</h2>' +
+        '<div class="subtitle">Selecione o kit de revisão</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="kit-grid">' + kitButtons + '</div>';
+
+  if(currentKitIdx === null){
+    html += '<div class="kit-hint">Selecione um kit acima para ver os itens.</div>';
+  } else {
+    const kit = model.kits[currentKitIdx];
+    const total = kit.parts.reduce((sum, p) => sum + (p.qty * p.price), 0);
+
+    const rows = kit.parts.map(p => {
+      const zeroClass = p.price === 0 ? ' zero' : '';
+      const lineTotal = p.qty * p.price;
+      const unitText = p.price === 0 ? 'Sob consulta' : formatBRL(p.price);
+      const totalText = p.price === 0 ? 'Sob consulta' : formatBRL(lineTotal);
+      const photoCell = p.photo
+        ? '<img class="thumb" src="' + p.photo + '" alt="' + p.desc + '" onclick="openLightbox(\'' + p.photo.replace(/'/g, "\\'") + '\', \'' + p.desc.replace(/'/g, "\\'") + '\')" onerror="this.outerHTML=\'<div class=&quot;thumb-placeholder&quot;>🔩</div>\'">'
+        : '<div class="thumb-placeholder">🔩</div>';
+      return '<tr>' +
+        '<td class="photo">' + photoCell + '</td>' +
+        '<td class="code">' + p.code + '</td>' +
+        '<td>' + p.desc + '</td>' +
+        '<td class="qty">' + p.qty + '</td>' +
+        '<td class="unit' + zeroClass + '">' + unitText + '</td>' +
+        '<td class="price' + zeroClass + '">' + totalText + '</td>' +
+        '</tr>';
+    }).join('');
+
+    html +=
+      '<div class="kit-section-title">' +
+        '<span>' + kit.name + '</span>' +
+        '<span class="kit-item-count">' + kit.parts.length + ' itens no kit</span>' +
+      '</div>' +
+      '<table>' +
+        '<thead><tr>' +
+          '<th class="photo-col"></th>' +
+          '<th>Código</th>' +
+          '<th>Descrição</th>' +
+          '<th class="center">Qtd</th>' +
+          '<th class="num">Valor Unit.</th>' +
+          '<th class="num">Valor Total</th>' +
+        '</tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+        '<tfoot><tr><td colspan="5">Total do kit</td><td class="price">' + formatBRL(total) + '</td></tr></tfoot>' +
+      '</table>';
+  }
+
+  detailEl.innerHTML = html;
+}
+
+renderList();
+
+if(LOGO_URL){
+  const logoEl = document.getElementById('logo');
+  logoEl.src = LOGO_URL;
+  logoEl.style.display = '';
+  logoEl.onerror = function(){ this.style.display = 'none'; };
+}
+
+function openLightbox(src, caption){
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox-caption').textContent = caption;
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function closeLightbox(e){
+  if (e) e.stopPropagation();
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+</script>
+
+</body>
+</html>
